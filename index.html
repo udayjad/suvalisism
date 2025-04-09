@@ -80,10 +80,52 @@
       text-align: center;
       color: #666;
     }
+
+    @keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero h1 {
+  /* existing styles... */
+  animation: fadeSlideUp 1.2s ease-out forwards;
+  opacity: 0;
+}
+
+.hero p {
+  /* existing styles... */
+  animation: fadeSlideUp 1.6s ease-out forwards;
+  opacity: 0;
+}
+.hero h1 {
+  animation-delay: 0.2s;
+}
+
+.hero p {
+  animation-delay: 0.6s;
+}
+
+#starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1; /* Push it behind everything */
+  width: 100%;
+  height: 100%;
+  background: #0d0d0d;
+}
+
   </style>
 </head>
 <body>
-  
+  <canvas id="starfield"></canvas>
+
   <!-- Background jazz music -->
   <audio autoplay loop>
     <source src="https://cdn.pixabay.com/download/audio/2022/02/01/audio_b5b5372363.mp3?filename=jazz-in-paris-1682.mp3" type="audio/mpeg">
@@ -110,6 +152,24 @@
     function showNextScene() {
       alert("Look behind you... or maybe meet me where the stars first aligned ✨");
     }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const audio = document.querySelector('audio');
+    let volume = 0;
+    audio.volume = 0;
+    audio.play();
+
+    const fadeIn = setInterval(() => {
+      if (volume < 1) {
+        volume += 0.01;
+        audio.volume = volume;
+      } else {
+        clearInterval(fadeIn);
+      }
+    }, 50); // ~5 seconds to full volume
+  });
+</script>
+
   </script>
   <audio id="bg-music" loop>
     <source src="date4.mp3" type="audio/mpeg">
@@ -117,5 +177,56 @@
   
   <button class="button" onclick="document.getElementById('bg-music').play()">Play Music 🎷</button>
   
+  <script>
+    const canvas = document.getElementById('starfield');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    for (let i = 0; i < 120; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        speed: Math.random() * 0.5 + 0.2
+      });
+    }
+    
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white';
+      stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+        ctx.fill();
+      });
+    }
+    
+    function animateStars() {
+      stars.forEach(star => {
+        star.y += star.speed;
+        if (star.y > canvas.height) {
+          star.y = 0;
+          star.x = Math.random() * canvas.width;
+        }
+      });
+    }
+    
+    function loop() {
+      drawStars();
+      animateStars();
+      requestAnimationFrame(loop);
+    }
+    
+    loop();
+    </script>
+    
 </body>
 </html>
